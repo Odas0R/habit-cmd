@@ -20,9 +20,7 @@ declare -r HABIT_CONFIG_DIR="$HOME/.habit"
 declare -r HABIT_CONFIG_LOG="$HOME/.habit/log"
 declare -r HABIT_CONFIG_GOALS="$HOME/.habit/goals"
 
-firstCommand="${1:-help}"
-
-_help() {
+x.help() {
   printf '
 habit is a program that functions as a journal of your
 habits/doings. You can visualize the weekly, monthly or
@@ -38,11 +36,11 @@ Commands:
   goal             Adds an goal entry of an habit/doing
   list             Display the progress of the current week,
                    month or in total
+
 '
 }
 
-# inserts and habit
-habit_add() {
+x.add() {
   local date slug habit="$1" time="$2"
 
   if [[ -z $habit ]] || [[ -z $value ]]; then
@@ -57,9 +55,9 @@ habit_add() {
   echo " ✨ Nice job! Added ${habit} to your tracking log..."
 }
 
-habit_edit() { popup nvim "$HABIT_CONFIG_LOG"; }
+x.edit() { popup nvim "$HABIT_CONFIG_LOG"; }
 
-habit_list_week() {
+x.list.week() {
   local -A logs
   local -A habits
 
@@ -172,7 +170,7 @@ habit_list_week() {
 }
 
 # todo make so that it only displays the current month
-habit_list_total() {
+x.list.month() {
   local -A logs
   local -A habits
 
@@ -238,37 +236,43 @@ habit_list_total() {
   printf "\n"
 }
 
-case "$firstCommand" in
-help)
-  _help
-  exit 0
-  ;;
-init)
-  habit_init
-  exit 0
-  ;;
-add)
-  shift
-  habit_add "$@"
-  exit 0
-  ;;
-e | edit)
-  shift
-  habit_edit
-  exit 0
-  ;;
-l | list)
-  shift
-  case $1 in
-  --month)
-    habit_list_total
-    exit 0
-    ;;
-  *)
-    habit_list_week
-    exit 0
-    ;;
-  esac
-  ;;
+# ----------------- completion & cmd automation -------------------
+#
+# reference: https://github.com/rwxrob/cmd-zet
 
-esac
+while IFS= read -r line; do
+  [[ $line =~ ^declare\ -f\ x\. ]] || continue
+  COMMANDS+=("${line##declare -f x.}")
+done < <(declare -F)
+
+mapfile -t COMMANDS < \
+  <(LC_COLLATE=C sort < <(printf "%s\n" "${COMMANDS[@]}"))
+
+if [[ -n $COMP_LINE ]]; then
+  line=${COMP_LINE#* }
+  for c in "${COMMANDS[@]}"; do
+    [[ ${c:0:${#line}} == "${line,,}" ]] && echo "$c"
+  done
+  exit
+fi
+
+for c in "${COMMANDS[@]}"; do
+  if [[ $c == "$EXE" ]]; then
+    "x.$EXE" "$@"
+    exit $?
+  fi
+done
+
+if [[ -n "$1" ]]; then
+  declare CMD="$1"
+  shift
+
+  for c in "${COMMANDS[@]}"; do
+    if [[ $c == "$CMD" ]]; then
+      "x.$CMD" "$@"
+      exit $?
+    fi
+  done
+fi
+
+x.help "$@"

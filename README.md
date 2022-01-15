@@ -1,5 +1,6 @@
 # Habit 
 
+```text
 habit is a bash script that works as a journal of your
 habits/doings. You can visualize the weekly, monthly or
 total progress of those habits/doings.
@@ -14,6 +15,7 @@ Commands:
   goal             Adds an goal entry of an habit/doing
   list             Display the progress of the current week,
                    month or in total
+```
 
 ## Motivation
 

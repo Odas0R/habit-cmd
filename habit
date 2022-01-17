@@ -41,17 +41,18 @@ Commands:
 }
 
 x.add() {
-  local date slug habit="$1" time="$2"
+  local date slug habit="${1}" time="${2}"
 
-  if [[ -z $habit ]] || [[ -z $value ]]; then
+  if [[ -z $habit ]] || [[ -z $time ]]; then
     echo "Invalid arguments."
+    exit 1
   fi
 
   date=$(date +%Y-%m-%d)
   slug=$(echo "$habit" | slugify)
 
   mkdir -p "$HABIT_CONFIG_DIR"
-  echo "${habit} ${time} ${date} ${slug}" >"$HABIT_CONFIG_LOG"
+  echo "${habit}|${time}|${date}|${slug}" >>"$HABIT_CONFIG_LOG"
   echo " ✨ Nice job! Added ${habit} to your tracking log..."
 }
 
@@ -61,9 +62,7 @@ x.list.week() {
   local -A logs
   local -A habits
 
-  while IFS=" " read -r line; do
-
-    log=($line)
+  while IFS="|" read -ra log; do
 
     if [[ -z "${log[0]}" ]]; then
       echo "Ooops, something went wrong!"
@@ -174,8 +173,7 @@ x.list.month() {
   local -A logs
   local -A habits
 
-  while IFS=" " read -r line; do
-    log=($line)
+  while IFS="|" read -ra log; do
 
     if [[ -z "${log[0]}" ]]; then
       echo "Ooops, something went wrong!"

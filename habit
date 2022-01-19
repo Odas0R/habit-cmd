@@ -236,7 +236,7 @@ x.list.month() {
 
 # ----------------- completion & cmd automation -------------------
 #
-# reference: https://github.com/rwxrob/cmd-zet
+# Adapted from: https://github.com/rwxrob/cmd-zet
 
 while IFS= read -r line; do
   [[ $line =~ ^declare\ -f\ x\. ]] || continue
@@ -246,11 +246,27 @@ done < <(declare -F)
 mapfile -t COMMANDS < \
   <(LC_COLLATE=C sort < <(printf "%s\n" "${COMMANDS[@]}"))
 
+declare -A HABITS
+
+while IFS="|" read -ra log; do
+  habit="${log[0]}"
+  HABITS["${habit}"]="$habit"
+done <"$HABIT_CONFIG_LOG"
+
 if [[ -n $COMP_LINE ]]; then
   line=${COMP_LINE#* }
-  for c in "${COMMANDS[@]}"; do
-    [[ ${c:0:${#line}} == "${line,,}" ]] && echo "$c"
-  done
+
+  if [[ ${line,,} =~ add ]]; then
+    line=${line//add /}
+    for c in "${HABITS[@]}"; do
+      [[ ${c:0:${#line}} == "${line}" ]] && echo "$c"
+    done
+
+  else
+    for c in "${COMMANDS[@]}"; do
+      [[ ${c:0:${#line}} == "${line,,}" ]] && echo "$c"
+    done
+  fi
   exit
 fi
 

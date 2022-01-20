@@ -14,6 +14,7 @@ declare reset="\e[0m"
 declare -r HABIT_CONFIG_DIR="$HOME/.habit"
 declare -r HABIT_CONFIG_LOG="$HOME/.habit/log"
 declare -r HABIT_CONFIG_GOALS="$HOME/.habit/goals"
+declare -r HABIT_PLANNING="$HOME/.habit/plan.md"
 
 x.help() {
   printf '
@@ -25,12 +26,14 @@ They are written to a file under $HOME/.habit/log which you
 can access by doing `habit edit`.
 
 Commands:
-  help             Show help commands
-  add              Adds an habit/doing entry
-  edit             Opens the log file in the default $EDITOR
-  goal             Adds an goal entry of an habit/doing
-  list             Display the progress of the current week,
-                   month or in total
+  help                    Show help commands
+  add <habit> <hours>     Adds an habit entry
+  edit.habits             Opens the log file in the default $EDITOR
+  edit.goals              Opens the goals file in the default $EDITOR
+  edit.plan               Opens the `plan.md` file in the default $EDITOR
+  goal <habit> <hours>    Adds an goal entry of an habit/doing
+  list                    Display the progress of the current week
+  list.month              Display the progress of the current month
 
 '
 }
@@ -76,6 +79,7 @@ x.goal() {
 
 x.edit.habits() { popup nvim "$HABIT_CONFIG_LOG"; }
 x.edit.goals() { popup nvim "$HABIT_CONFIG_GOALS"; }
+x.edit.plan() { popup nvim "$HABIT_PLANNING"; }
 
 x.list() {
   local -A logs

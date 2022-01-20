@@ -251,7 +251,6 @@ x.list() {
   printf "\n"
 }
 
-# TODO: Track monthly instead of total
 x.list.month() {
   local -A logs
   local -A habits
@@ -272,10 +271,8 @@ x.list.month() {
     count="${logs["${index}.count"]}"
 
     if [[ -z $count ]]; then
-      # get update all the slugs
       habits["${slug}"]="$slug"
 
-      # if there's no habit in the log array, initialize
       logs["${index}.count"]=1
       logs["${index}.title"]="$habit"
       logs["${index}.time"]="$time"

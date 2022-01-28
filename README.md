@@ -1,5 +1,7 @@
 # Habit 
 
+**It is not ready to use, only working on a specific editor**
+
 ```text
 habit is a bash script that works as a journal of your
 habits/doings. You can visualize the weekly, monthly or

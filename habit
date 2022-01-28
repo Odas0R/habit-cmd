@@ -34,14 +34,13 @@ Commands:
   goal <habit> <hours>    Adds an goal entry of an habit/doing
   list                    Display the progress of the current week
   list.month              Display the progress of the current month
-
 '
 }
 
 x.add() {
-  local date slug habit="${1}" time="${2}"
+  local date slug habit="${1}" time="${2:-25}"
 
-  if [[ -z $habit ]] || [[ -z $time ]]; then
+  if [[ -z $habit ]] || [[ -n "${time##[0-9]*}" ]]; then
     echo "Invalid arguments."
     exit 1
   fi
@@ -51,7 +50,7 @@ x.add() {
 
   mkdir -p "$HABIT_CONFIG_DIR"
   echo "${habit}|${time}|${date}|${slug}" >>"$HABIT_CONFIG_LOG"
-  echo " ✨ Nice job! Added ${habit} to your tracking log..."
+  echo -e " ✨ Nice job! Added ${cyan}${habit}${reset} to your tracking log..."
 }
 
 # Writes an weekly goal into the $HABIT_CONFIG_GOALS file
@@ -74,7 +73,7 @@ x.goal() {
 
   mkdir -p "$HABIT_CONFIG_DIR"
   echo "${habit}|${hours}|${type}|${slug}" >>"$HABIT_CONFIG_GOALS"
-  echo " ✨ Tracking ${habit}! Added ${habit} to your goals log..."
+  echo -e " ✨ Tracking ${cyan}${habit}${reset}! Added ${cyan}${habit}${reset} to your goals log..."
 }
 
 x.edit.habits() { popup nvim "$HABIT_CONFIG_LOG"; }
@@ -169,7 +168,6 @@ x.list() {
 
   # display the results
   #
-
   padlimit=60
   pad=$(printf '%*s' "$padlimit")
   pad=${pad// /.}
@@ -363,13 +361,6 @@ if [[ -n $COMP_LINE ]]; then
   fi
   exit
 fi
-
-for c in "${COMMANDS[@]}"; do
-  if [[ $c == "$EXE" ]]; then
-    "x.$EXE" "$@"
-    exit $?
-  fi
-done
 
 if [[ -n "$1" ]]; then
   declare CMD="$1"
